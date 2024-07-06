@@ -5,24 +5,23 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed;
+    [SerializeField] private float moveSpeed;
 
-    public float groundDrag;
+    [SerializeField] private float groundDrag;
 
-    public float jumpForce;
-    public float jumpCooldown;
-    public float airMultiplier;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float jumpCooldown;
     bool readyToJump;
 
     [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
 
     [Header("Ground Check")]
-    public float playerHeight;
-    public LayerMask whatIsGround;
+    [SerializeField] private float playerHeight;
+    [SerializeField] private LayerMask whatIsGround;
     bool grounded;
 
-    public Transform orientation;
+    [SerializeField] private Transform orientation;
 
     float horizontalInput;
     float verticalInput;
@@ -83,10 +82,6 @@ public class PlayerMovement : MonoBehaviour
         // on ground
         if (grounded)
             rb.AddForce(moveDirection.normalized * moveSpeed * 10.0f, ForceMode.Force);
-
-        // in air
-        else if(!grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10.0f * airMultiplier, ForceMode.Force);
     }
 
     private void SpeedControl()
