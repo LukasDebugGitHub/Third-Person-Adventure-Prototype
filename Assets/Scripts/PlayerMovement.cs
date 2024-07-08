@@ -13,8 +13,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpCooldown;
     bool readyToJump;
 
+    [SerializeField] private float crouchMoveSpeed;
+    bool readyToCrouch;
+
     [Header("Keybinds")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode crouchKey = KeyCode.C;
 
     [Header("Ground Check")]
     [SerializeField] private float playerHeight;
@@ -26,16 +30,21 @@ public class PlayerMovement : MonoBehaviour
     float horizontalInput;
     float verticalInput;
 
+    float currentMoveSpeed;
+
     Vector3 moveDirection;
 
     Rigidbody rb;
 
     private void Start()
     {
+        currentMoveSpeed = moveSpeed;
+
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
         readyToJump = true;
+        readyToCrouch = true;
     }
 
     private void Update()
@@ -72,6 +81,15 @@ public class PlayerMovement : MonoBehaviour
 
             Invoke(nameof(ResetJump), jumpCooldown);
         }
+
+        // when to crouch
+        if(Input.GetKeyDown(crouchKey) && readyToCrouch && grounded)
+        {
+            Crouch();
+        }else if (Input.GetKeyDown(crouchKey) && !readyToCrouch && grounded)
+        {
+            ResetCrouch();
+        }
     }
 
     private void MovePlayer()
@@ -81,7 +99,7 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if (grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10.0f, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * currentMoveSpeed * 10.0f, ForceMode.Force);
     }
 
     private void SpeedControl()
@@ -89,9 +107,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         // limit velocity if needed
-        if(flatVel.magnitude > moveSpeed)
+        if(flatVel.magnitude > currentMoveSpeed)
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            Vector3 limitedVel = flatVel.normalized * currentMoveSpeed;
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
     }
@@ -102,10 +120,36 @@ public class PlayerMovement : MonoBehaviour
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+        // reset crouch by jump
+        if (!readyToCrouch)
+            ResetCrouch();
     }
 
     private void ResetJump()
     {
         readyToJump = true;
+    }
+
+    private void Crouch()
+    {
+        readyToCrouch = false;
+
+        // simulates the height of the player
+        gameObject.transform.localScale = new Vector3(transform.localScale.x, 0.5f, transform.localScale.z);
+
+        // make the player move slower
+        currentMoveSpeed = crouchMoveSpeed;
+    }
+
+    private void ResetCrouch()
+    {
+        readyToCrouch = true;
+
+        // reset the height to his normal
+        gameObject.transform.localScale = new Vector3(transform.localScale.x, 1.0f, transform.localScale.z);
+
+        // return his normal move speed
+        currentMoveSpeed = moveSpeed;
     }
 }
