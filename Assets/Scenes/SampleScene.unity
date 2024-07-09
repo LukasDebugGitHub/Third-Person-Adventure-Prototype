@@ -1511,12 +1511,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1069694261}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.63, y: 1.5, z: -29.83}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 39.030872, y: 85.89451, z: -335.12762}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1980370783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1385967986
 GameObject:
@@ -1968,8 +1968,13 @@ MonoBehaviour:
   jumpForce: 10
   jumpCooldown: 1
   crouchMoveSpeed: 3
+  sprintSpeed: 12
+  holdTimeForSprint: 0.3
+  dodgeForce: 200
+  dodgeCooldown: 1
   jumpKey: 32
   crouchKey: 99
+  sprintDodgeKey: 304
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -2008,6 +2013,7 @@ Transform:
   - {fileID: 679350312}
   - {fileID: 232491799}
   - {fileID: 973623694}
+  - {fileID: 1069694265}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2147316468
@@ -2050,4 +2056,3 @@ SceneRoots:
   - {fileID: 1980370783}
   - {fileID: 1951264219}
   - {fileID: 683634607}
-  - {fileID: 1069694265}

@@ -16,9 +16,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float crouchMoveSpeed;
     bool readyToCrouch;
 
+    [SerializeField] private float sprintSpeed;
+    [SerializeField] private float holdTimeForSprint;
+    bool readyToSprint;
+
+    [SerializeField] private float dodgeForce;
+    [SerializeField] private float dodgeCooldown;
+    bool readyToDodge;
+
     [Header("Keybinds")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.C;
+    [SerializeField] private KeyCode sprintDodgeKey = KeyCode.LeftShift;
 
     [Header("Ground Check")]
     [SerializeField] private float playerHeight;
@@ -27,10 +36,13 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private Transform orientation;
 
+    // Cache variables for values
     float horizontalInput;
     float verticalInput;
 
     float currentMoveSpeed;
+    bool isSprinting;
+    float startTime = 0f;
 
     Vector3 moveDirection;
 
@@ -45,6 +57,8 @@ public class PlayerMovement : MonoBehaviour
 
         readyToJump = true;
         readyToCrouch = true;
+        readyToSprint = true;
+        readyToDodge = true;
     }
 
     private void Update()
@@ -73,10 +87,8 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
+        if(Input.GetKeyDown(jumpKey) && readyToJump && grounded)
         {
-            readyToJump = false;
-
             Jump();
 
             Invoke(nameof(ResetJump), jumpCooldown);
@@ -86,9 +98,36 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetKeyDown(crouchKey) && readyToCrouch && grounded)
         {
             Crouch();
+
         }else if (Input.GetKeyDown(crouchKey) && !readyToCrouch && grounded)
         {
             ResetCrouch();
+        }
+
+        // check for sprint or dodge
+        if (Input.GetKeyDown(sprintDodgeKey))
+        {
+            readyToDodge = true;
+            startTime = Time.time;
+        }
+
+        // when to sprint
+        if (Input.GetKey(sprintDodgeKey) && readyToSprint && grounded && startTime + holdTimeForSprint < Time.time) 
+        {
+            readyToDodge = false;
+            Sprint();
+        }
+        else if (Input.GetKeyUp(sprintDodgeKey) && isSprinting && grounded)
+        {
+            startTime = 0;
+            ResetSprint();
+        }
+
+        // when to dodge
+        if (Input.GetKeyUp(sprintDodgeKey) && readyToDodge && grounded)
+        {
+            Dodge();
+            Invoke(nameof(ResetDodge), dodgeCooldown);
         }
     }
 
@@ -116,14 +155,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
+        readyToJump = false;
+
         // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
         // reset crouch by jump
-        if (!readyToCrouch)
-            ResetCrouch();
+        CancelCrouch();
     }
 
     private void ResetJump()
@@ -151,5 +191,43 @@ public class PlayerMovement : MonoBehaviour
 
         // return his normal move speed
         currentMoveSpeed = moveSpeed;
+    }
+
+    private void CancelCrouch()
+    {
+        if (!readyToCrouch)
+            ResetCrouch();
+    }
+
+    private void Sprint()
+    {
+        isSprinting = true;
+
+        currentMoveSpeed = sprintSpeed;
+
+        // reset crouch by sprint
+        CancelCrouch();
+    }
+
+    private void ResetSprint()
+    {
+        isSprinting = false;
+        
+        currentMoveSpeed = moveSpeed;
+    }
+
+    private void Dodge()
+    {
+        readyToDodge = false;
+
+        rb.AddForce(moveDirection * dodgeForce, ForceMode.Impulse);
+
+        // reset crouch by dodge
+        CancelCrouch();
+    }
+
+    private void ResetDodge()
+    {
+        readyToDodge = true;
     }
 }
