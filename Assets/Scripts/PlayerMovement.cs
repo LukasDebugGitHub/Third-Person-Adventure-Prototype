@@ -11,18 +11,18 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpCooldown;
-    bool readyToJump;
+    public bool isJumping {  get; private set; }
 
     [SerializeField] private float crouchMoveSpeed;
-    bool readyToCrouch;
+    public bool isCrouching { get; private set; }
 
     [SerializeField] private float sprintSpeed;
     [SerializeField] private float holdTimeForSprint;
-    bool readyToSprint;
+    public bool isSprinting { get; private set; }
 
     [SerializeField] private float dodgeForce;
     [SerializeField] private float dodgeCooldown;
-    bool readyToDodge;
+    public bool isDodging { get; private set; }
 
     [Header("Keybinds")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
@@ -41,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
     float verticalInput;
 
     float currentMoveSpeed;
-    bool isSprinting;
     float startTime = 0f;
 
     Vector3 moveDirection;
@@ -55,10 +54,10 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        readyToJump = true;
-        readyToCrouch = true;
-        readyToSprint = true;
-        readyToDodge = true;
+        isJumping = false;
+        isCrouching = false;
+        isSprinting = false;
+        isDodging = false;
     }
 
     private void Update()
@@ -87,7 +86,7 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if(Input.GetKeyDown(jumpKey) && readyToJump && grounded)
+        if(Input.GetKeyDown(jumpKey) && !isJumping && grounded)
         {
             Jump();
 
@@ -95,11 +94,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // when to crouch
-        if(Input.GetKeyDown(crouchKey) && readyToCrouch && grounded)
+        if(Input.GetKeyDown(crouchKey) && !isCrouching && grounded)
         {
             Crouch();
 
-        }else if (Input.GetKeyDown(crouchKey) && !readyToCrouch && grounded)
+        }else if (Input.GetKeyDown(crouchKey) && isCrouching && grounded)
         {
             ResetCrouch();
         }
@@ -107,14 +106,14 @@ public class PlayerMovement : MonoBehaviour
         // check for sprint or dodge
         if (Input.GetKeyDown(sprintDodgeKey))
         {
-            readyToDodge = true;
+            isDodging = true;
             startTime = Time.time;
         }
 
         // when to sprint
-        if (Input.GetKey(sprintDodgeKey) && readyToSprint && grounded && startTime + holdTimeForSprint < Time.time) 
+        if (Input.GetKey(sprintDodgeKey) && !isSprinting && grounded && startTime + holdTimeForSprint < Time.time) 
         {
-            readyToDodge = false;
+            isDodging = false;
             Sprint();
         }
         else if (Input.GetKeyUp(sprintDodgeKey) && isSprinting && grounded)
@@ -124,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // when to dodge
-        if (Input.GetKeyUp(sprintDodgeKey) && readyToDodge && grounded)
+        if (Input.GetKeyUp(sprintDodgeKey) && isDodging && grounded)
         {
             Dodge();
             Invoke(nameof(ResetDodge), dodgeCooldown);
@@ -155,7 +154,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        readyToJump = false;
+        isJumping = true;
 
         // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
@@ -168,12 +167,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetJump()
     {
-        readyToJump = true;
+        isJumping = false;
     }
 
     private void Crouch()
     {
-        readyToCrouch = false;
+        isCrouching = true;
 
         // simulates the height of the player
         gameObject.transform.localScale = new Vector3(transform.localScale.x, 0.5f, transform.localScale.z);
@@ -184,7 +183,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetCrouch()
     {
-        readyToCrouch = true;
+        isCrouching = false;
 
         // reset the height to his normal
         gameObject.transform.localScale = new Vector3(transform.localScale.x, 1.0f, transform.localScale.z);
@@ -195,7 +194,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CancelCrouch()
     {
-        if (!readyToCrouch)
+        if (isCrouching)
             ResetCrouch();
     }
 
@@ -218,7 +217,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Dodge()
     {
-        readyToDodge = false;
+        isDodging = true;
 
         rb.AddForce(moveDirection * dodgeForce, ForceMode.Impulse);
 
@@ -228,6 +227,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetDodge()
     {
-        readyToDodge = true;
+        isDodging = false;
     }
 }
