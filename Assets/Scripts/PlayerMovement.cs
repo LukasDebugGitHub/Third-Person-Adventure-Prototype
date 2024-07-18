@@ -68,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
         MyInput();
         SpeedControl();
 
+
         // handle drag
         if (grounded)
             rb.drag = groundDrag;
@@ -116,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
             isDodging = false;
             Sprint();
         }
-        else if (Input.GetKeyUp(sprintDodgeKey) && isSprinting && grounded)
+        else if (!Input.GetKey(sprintDodgeKey) && isSprinting)
         {
             startTime = 0;
             ResetSprint();
