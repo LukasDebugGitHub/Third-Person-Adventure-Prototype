@@ -138,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if (grounded)
-            rb.AddForce(moveDirection.normalized * currentMoveSpeed * 10.0f, ForceMode.Force);
+            rb.AddForce(moveDirection.normalized * currentMoveSpeed * 10.0f * rb.mass, ForceMode.Force);
     }
 
     private void SpeedControl()
@@ -160,7 +160,7 @@ public class PlayerMovement : MonoBehaviour
         // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        rb.AddForce(transform.up * jumpForce * rb.mass, ForceMode.Impulse);
 
         // reset crouch by jump
         CancelCrouch();
@@ -220,7 +220,7 @@ public class PlayerMovement : MonoBehaviour
     {
         isDodging = true;
 
-        rb.AddForce(moveDirection * dodgeForce, ForceMode.Impulse);
+        rb.AddForce(moveDirection * dodgeForce * rb.mass, ForceMode.Impulse);
 
         // reset crouch by dodge
         CancelCrouch();
