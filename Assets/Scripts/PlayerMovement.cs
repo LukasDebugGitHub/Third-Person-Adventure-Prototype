@@ -47,12 +47,14 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
+    public Animator playerAnim;
+
     private void Start()
     {
-        currentMoveSpeed = moveSpeed;
-
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+
+        currentMoveSpeed = moveSpeed;
 
         isJumping = false;
         isCrouching = false;
@@ -67,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
 
         MyInput();
         SpeedControl();
-
+        AnimationController();
 
         // handle drag
         if (grounded)
@@ -138,7 +140,17 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if (grounded)
+        {
             rb.AddForce(moveDirection.normalized * currentMoveSpeed * 10.0f * rb.mass, ForceMode.Force);
+        }
+
+        // control the walking to idle
+        Vector3 standVel = new Vector3(rb.velocity.x * moveDirection.magnitude, rb.velocity.y, rb.velocity.z * moveDirection.magnitude);
+        if (standVel.magnitude == 0)
+        {
+            rb.velocity = standVel;
+        }
+        
     }
 
     private void SpeedControl()
@@ -229,5 +241,11 @@ public class PlayerMovement : MonoBehaviour
     private void ResetDodge()
     {
         isDodging = false;
+    }
+
+    private void AnimationController()
+    {
+        // Set the animation for walking
+        playerAnim.SetFloat("Walking", rb.velocity.magnitude);
     }
 }
