@@ -47,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
-    public Animator playerAnim;
+    [SerializeField] private Animator playerAnim;
 
     private void Start()
     {
@@ -60,6 +60,8 @@ public class PlayerMovement : MonoBehaviour
         isCrouching = false;
         isSprinting = false;
         isDodging = false;
+
+        playerAnim.SetBool("Jumping", false);
     }
 
     private void Update()
@@ -246,6 +248,16 @@ public class PlayerMovement : MonoBehaviour
     private void AnimationController()
     {
         // Set the animation for walking
-        playerAnim.SetFloat("Walking", rb.velocity.magnitude);
+        if (grounded && rb.velocity.y == 0)
+            playerAnim.SetFloat("Walking", rb.velocity.magnitude);
+
+        // Set the animation for jumping
+        if (isJumping)
+            playerAnim.SetBool("Jumping", true);
+        else
+            playerAnim.SetBool("Jumping", false);
+
+        // Set the animation for falling
+        playerAnim.SetFloat("Falling", rb.velocity.y);
     }
 }
